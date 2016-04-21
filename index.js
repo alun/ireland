@@ -44,81 +44,77 @@
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
-	let Raphael = __webpack_require__(1),
+	'use strict';
+
+	var Raphael = __webpack_require__(1),
 	    Circle = __webpack_require__(2),
 	    elem = document.createElement('div'),
-	    ready
+	    ready = void 0;
 
 	ready = new Promise(function (resolve, reject) {
 	  if (document.readyState == 'loading') {
-	    document.onreadystatechange = () => {
+	    document.onreadystatechange = function () {
 	      if (document.readyState == 'complete') {
-	        setTimeout(() => resolve(), 0)
-	        document.onreadystatechange = undefined
+	        setTimeout(function () {
+	          return resolve();
+	        }, 0);
+	        document.onreadystatechange = undefined;
 	      }
-	    }
+	    };
+	  } else {
+	    resolve();
 	  }
-	  else {
-	    resolve()
-	  }
-	})
+	});
 
-	ready.then(() => {
-	  document.body.appendChild(elem)
-	  document.body.style.margin = 0
+	ready.then(function () {
+	  document.body.appendChild(elem);
+	  document.body.style.margin = 0;
 
-	  render()
-	})
+	  render();
+	});
 
 	function render() {
 
-	  window.onresize = (event) => {
-	  }
+	  window.onresize = function (event) {};
 
-	  let html = document.getElementsByTagName('html')[0],
+	  var html = document.getElementsByTagName('html')[0],
 	      viewWidth = html.clientWidth,
 	      viewHeight = html.clientHeight,
 	      height = viewHeight,
 	      width = height / 2,
 	      amount = 100,
 	      container = elem,
-	      paper = Raphael(container, 3 * width, height)
+	      paper = Raphael(container, 3 * width, height);
 
 	  function drawLine(color, offset, width) {
 	    var circles = [],
-	        i = 0
+	        i = 0;
 	    for (; i < amount; i++) {
-	      let circle = new Circle({paper, color, offset, width, height})
-	      circles.push(circle)
+	      var circle = new Circle({ paper: paper, color: color, offset: offset, width: width, height: height });
+	      circles.push(circle);
 	    }
-	    return circles
+	    return circles;
 	  }
 
-	  var circles = drawLine(Circle.C1, 0, width).concat(
-	    drawLine(Circle.C2, 1 * width, width)
-	  ).concat(
-	    drawLine(Circle.C3, 2 * width, width)
-	  )
+	  var circles = drawLine(Circle.C1, 0, width).concat(drawLine(Circle.C2, 1 * width, width)).concat(drawLine(Circle.C3, 2 * width, width));
 
 	  for (var i = 0, l = circles.length; i < l; i++) {
-	    var idx = Math.floor(l * Math.random())
-	    circles[idx].pop()
+	    var idx = Math.floor(l * Math.random());
+	    circles[idx].pop();
 	  }
 
-	  let frame = 0
+	  var frame = 0;
 
 	  function animate() {
-	    circles.forEach((circle) => {
-	      circle.animate({frame})
-	    })
-	    frame++
-	    setTimeout(animate, 30)
+	    circles.forEach(function (circle) {
+	      circle.animate({ frame: frame });
+	    });
+	    frame++;
+	    setTimeout(animate, 30);
 	  }
 
-	  animate()
+	  animate();
 	}
-
-
 
 /***/ },
 /* 1 */
@@ -132,116 +128,134 @@
 /* 2 */
 /***/ function(module, exports) {
 
-	let C1 = "#f77f00",
-	    C2 = "#ffffff",
-	    C3 = "#009e60"
+	"use strict";
 
-	function rand(length = 1) {
-	  return length * Math.random()
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var C1 = "#f77f00",
+	    C2 = "#ffffff",
+	    C3 = "#009e60";
+
+	function rand() {
+	  var length = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
+
+	  return length * Math.random();
 	}
 
 	function randomColor(but) {
-	  var a = [C1, C2, C3], idx = a.indexOf(but)
+	  var a = [C1, C2, C3],
+	      idx = a.indexOf(but);
 	  if (but && idx > -1) {
-	    a.splice(idx, 1)
+	    a.splice(idx, 1);
 	  }
-	  idx = Math.floor(rand(a.length))
-	  return a[idx]
+	  idx = Math.floor(rand(a.length));
+	  return a[idx];
 	}
 
-	class Circle {
+	var Circle = function () {
+	  function Circle(args) {
+	    var _this = this;
 
-	  constructor(args) {
-	    let paper = this.paper = args.paper,
+	    _classCallCheck(this, Circle);
+
+	    var paper = this.paper = args.paper,
 	        width = args.width,
 	        height = this.height = args.height,
-	        circle = this.circle = paper.circle(
-	          args.offset + width * Math.random(),
-	          args.height * Math.random(),
-	          height / 50 + 10 * Math.random()
-	        )
-	    this.colorize(args.color)
-	    circle.node.style.cursor = 'pointer'
+	        circle = this.circle = paper.circle(args.offset + width * Math.random(), args.height * Math.random(), height / 50 + 10 * Math.random());
+	    this.colorize(args.color);
+	    circle.node.style.cursor = 'pointer';
 
-	    circle.mouseover(() => {
+	    circle.mouseover(function () {
 	      if (circle.x1 !== undefined) {
-	        return
+	        return;
 	      }
 
-	      this.colorize(randomColor(circle.color))
-	      this.pop()
-	      this.renew()
+	      _this.colorize(randomColor(circle.color));
+	      _this.pop();
+	      _this.renew();
 
-	      let color = circle.color,
-	        lane = (color == C1 ? 0 : color == C2 ? 1 : 2)
-	      this.moveTo(
-	        width * (lane + Math.random())
-	      )
-	    })
+	      var color = circle.color,
+	          lane = color == C1 ? 0 : color == C2 ? 1 : 2;
+	      _this.moveTo(width * (lane + Math.random()));
+	    });
 
-	    this.renew()
+	    this.renew();
 	  }
-	  moveTo(x) {
-	    this.circle.x1 = x
-	  }
-	  colorize(color) {
-	    this.circle.attr("fill", color)
-	    this.circle.attr("stroke", randomColor(color))
-	    this.circle.color = color
-	  }
-	  pop() {
-	    let node = this.circle.node
-	    node.parentNode.appendChild(node)
-	  }
-	  renew() {
-	    let circle = this.circle
-	    circle.x0 = circle.attr('cx')
-	    circle.y0 = circle.attr('cy')
-	    circle.radius = this.height / 40 + 30 * Math.random()
-	    circle.cycle =  20 + 20 * Math.random()
-	    circle.dispersion = 3 * Math.random()
-	    circle.direction = Math.random() > 0.5 ? 1 : -1
-	  }
-	  animate(args) {
-	    let frame = args.frame,
-	        circle = this.circle,
-	        x = circle.attr('cx'),
-	        y = circle.attr('cy')
 
-	    if (circle.x1) {
-	      if (!circle.frameStart) {
-	        circle.frameStart = frame;
-	        circle.attr({opacity: rand(0.8)})
-	      }
-	      var phase = (frame - circle.frameStart) / circle.cycle;
-	      x = circle.x0 + (circle.x1 - circle.x0) * phase;
-	      if (phase > 1) {
-	        x = circle.x0 = circle.x1
-	        delete circle.x1
-	        delete circle.frameStart
-	        circle.attr({opacity: 1})
-	      }
+	  _createClass(Circle, [{
+	    key: "moveTo",
+	    value: function moveTo(x) {
+	      this.circle.x1 = x;
 	    }
-	    else {
-	      x = circle.x0;
+	  }, {
+	    key: "colorize",
+	    value: function colorize(color) {
+	      this.circle.attr("fill", color);
+	      this.circle.attr("stroke", randomColor(color));
+	      this.circle.color = color;
 	    }
+	  }, {
+	    key: "pop",
+	    value: function pop() {
+	      var node = this.circle.node;
+	      node.parentNode.appendChild(node);
+	    }
+	  }, {
+	    key: "renew",
+	    value: function renew() {
+	      var circle = this.circle;
+	      circle.x0 = circle.attr('cx');
+	      circle.y0 = circle.attr('cy');
+	      circle.radius = this.height / 40 + 30 * Math.random();
+	      circle.cycle = 20 + 20 * Math.random();
+	      circle.dispersion = 3 * Math.random();
+	      circle.direction = Math.random() > 0.5 ? 1 : -1;
+	    }
+	  }, {
+	    key: "animate",
+	    value: function animate(args) {
+	      var frame = args.frame,
+	          circle = this.circle,
+	          x = circle.attr('cx'),
+	          y = circle.attr('cy');
 
-	    x = x + circle.radius * Math.cos(2 * Math.PI * frame / circle.cycle * circle.direction);
-	    y = circle.y0 + circle.radius * Math.sin(2 * Math.PI * frame / circle.cycle * circle.direction);
+	      if (circle.x1) {
+	        if (!circle.frameStart) {
+	          circle.frameStart = frame;
+	          circle.attr({ opacity: rand(0.8) });
+	        }
+	        var phase = (frame - circle.frameStart) / circle.cycle;
+	        x = circle.x0 + (circle.x1 - circle.x0) * phase;
+	        if (phase > 1) {
+	          x = circle.x0 = circle.x1;
+	          delete circle.x1;
+	          delete circle.frameStart;
+	          circle.attr({ opacity: 1 });
+	        }
+	      } else {
+	        x = circle.x0;
+	      }
 
-	    circle.attr('cx', x + circle.dispersion * Math.sin(-Math.PI + 2 * Math.PI * Math.random()));
-	    circle.attr('cy', y + circle.dispersion * Math.sin(-Math.PI + 2 * Math.PI * Math.random()));
-	  }
-	}
+	      x = x + circle.radius * Math.cos(2 * Math.PI * frame / circle.cycle * circle.direction);
+	      y = circle.y0 + circle.radius * Math.sin(2 * Math.PI * frame / circle.cycle * circle.direction);
 
-	((_) => {
-	  _.C1 = C1
-	  _.C2 = C2
-	  _.C3 = C3
-	})(Circle)
+	      circle.attr('cx', x + circle.dispersion * Math.sin(-Math.PI + 2 * Math.PI * Math.random()));
+	      circle.attr('cy', y + circle.dispersion * Math.sin(-Math.PI + 2 * Math.PI * Math.random()));
+	    }
+	  }]);
 
-	module.exports = Circle
+	  return Circle;
+	}();
 
+	(function (_) {
+	  _.C1 = C1;
+	  _.C2 = C2;
+	  _.C3 = C3;
+	})(Circle);
+
+	module.exports = Circle;
 
 /***/ }
 /******/ ]);
