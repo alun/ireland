@@ -77,13 +77,15 @@ class Circle {
     if (circle.x1) {
       if (!circle.frameStart) {
         circle.frameStart = frame;
+        circle.attr({opacity: rand(0.8)})
       }
       var phase = (frame - circle.frameStart) / circle.cycle;
       x = circle.x0 + (circle.x1 - circle.x0) * phase;
       if (phase > 1) {
-        x = circle.x0 = circle.x1;
-        delete circle.x1;
-        delete circle.frameStart;
+        x = circle.x0 = circle.x1
+        delete circle.x1
+        delete circle.frameStart
+        circle.attr({opacity: 1})
       }
     }
     else {
