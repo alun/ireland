@@ -20,50 +20,50 @@ ready = new Promise(function (resolve, reject) {
 ready.then(() => {
   document.body.appendChild(elem)
   document.body.style.margin = 0
-
   render()
 })
 
 function render() {
 
+  let html = document.getElementsByTagName('html')[0],
+      height =  html.clientHeight,
+      width = html.clientWidth,
+      amount = 100,
+      paper = Raphael(elem, width, height)
+
   window.onresize = (event) => {
+      width = html.clientWidth
+      height = html.clientHeight
+      paper.setSize(width, height)
+      world.forEach((part) => {
+        part.worldSize(width, height)
+      })
   }
 
-  let html = document.getElementsByTagName('html')[0],
-      viewWidth = html.clientWidth,
-      viewHeight = html.clientHeight,
-      height = viewHeight,
-      width = height / 2,
-      amount = 100,
-      container = elem,
-      paper = Raphael(container, 3 * width, height)
-
-  function drawLine(color, offset, width) {
-    var circles = [],
+  function drawLine(color) {
+    let parts = [],
         i = 0
     for (; i < amount; i++) {
-      let circle = new Circle({paper, color, offset, width, height})
-      circles.push(circle)
+      let part = new Circle({paper, color, width, height})
+      parts.push(part)
     }
-    return circles
+    return parts
   }
 
-  var circles = drawLine(Circle.C1, 0, width).concat(
-    drawLine(Circle.C2, 1 * width, width)
-  ).concat(
-    drawLine(Circle.C3, 2 * width, width)
-  )
+  var world = drawLine(Circle.C1).concat(
+    drawLine(Circle.C2)).concat(
+    drawLine(Circle.C3))
 
-  for (var i = 0, l = circles.length; i < l; i++) {
-    var idx = Math.floor(l * Math.random())
-    circles[idx].pop()
-  }
+  world.forEach(() => {
+    let idx = Math.floor(world.length * Math.random())
+    world[idx].pop()
+  })
 
   let frame = 0
 
   function animate() {
-    circles.forEach((circle) => {
-      circle.animate({frame})
+    world.forEach((part) => {
+      part.animate({frame})
     })
     frame++
     setTimeout(animate, 30)
