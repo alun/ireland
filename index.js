@@ -99,7 +99,11 @@
 	    return parts;
 	  }
 
-	  var world = drawLine(Circle.C1).concat(drawLine(Circle.C2)).concat(drawLine(Circle.C3));
+	  var world = [Circle.C1, Circle.C2, Circle.C3].map(function (color) {
+	    return drawLine(color);
+	  }).reduce(function (parts1, parts2) {
+	    return parts1.concat(parts2);
+	  });
 
 	  world.forEach(function () {
 	    var idx = Math.floor(world.length * Math.random());
@@ -170,8 +174,9 @@
 	        circle = this.circle = paper.circle();
 	    this.colorize(color);
 	    this.worldSize(width, height);
-	    circle.node.style.cursor = 'pointer';
+	    this.renew();
 
+	    circle.node.style.cursor = 'pointer';
 	    circle.mouseover(function () {
 	      if (_this.x1 !== undefined) {
 	        return;
@@ -179,10 +184,8 @@
 	      _this.colorize(randomColor(_this.color));
 	      _this.pop();
 	      _this.renew();
-	      _this.transitTo(_this.width * (_this.lane + rand()));
+	      _this.transitTo(_this.laneWidth * (_this.lane + rand()), _this.height * rand());
 	    });
-
-	    this.renew();
 	  }
 
 	  _createClass(Circle, [{
@@ -190,7 +193,7 @@
 	    value: function worldSize(width, height) {
 	      var oldWidth = this.width,
 	          oldHeight = this.height;
-	      this.width = width / 3;
+	      this.width = width;
 	      this.height = height;
 	      this.circle.attr({
 	        r: this.height / 50 + rand(10)
@@ -198,7 +201,7 @@
 	      if (oldWidth !== undefined) {
 	        this.moveTo(this.x0 * this.width / oldWidth, this.y0 * this.height / oldHeight);
 	      } else {
-	        this.moveTo(this.offset + rand(this.width), this.height * rand());
+	        this.moveTo(this.offset + rand(this.laneWidth), this.height * rand());
 	      }
 	    }
 	  }, {
@@ -277,10 +280,11 @@
 
 	      phase = 2 * Math.PI * frame / this.cycle * this.direction;
 	      x = x + this.radius * Math.cos(phase);
-	      y = this.y0 + this.radius * Math.sin(phase);
-
-	      circle.attr('cx', x + this.dispersion * rand());
-	      circle.attr('cy', y + this.dispersion * rand());
+	      y = y + this.radius * Math.sin(phase);
+	      circle.attr({
+	        cx: x + this.dispersion * rand(),
+	        cy: y + this.dispersion * rand()
+	      });
 	    }
 	  }, {
 	    key: "lane",
@@ -290,7 +294,12 @@
 	  }, {
 	    key: "offset",
 	    get: function get() {
-	      return this.lane * this.width;
+	      return this.lane * this.laneWidth;
+	    }
+	  }, {
+	    key: "laneWidth",
+	    get: function get() {
+	      return this.width / 3;
 	    }
 	  }]);
 
