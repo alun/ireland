@@ -69,45 +69,48 @@
 	ready.then(function () {
 	  document.body.appendChild(elem);
 	  document.body.style.margin = 0;
-
 	  render();
 	});
 
 	function render() {
 
-	  window.onresize = function (event) {};
-
 	  var html = document.getElementsByTagName('html')[0],
-	      viewWidth = html.clientWidth,
-	      viewHeight = html.clientHeight,
-	      height = viewHeight,
-	      width = height / 2,
+	      height = html.clientHeight,
+	      width = html.clientWidth,
 	      amount = 100,
-	      container = elem,
-	      paper = Raphael(container, 3 * width, height);
+	      paper = Raphael(elem, width, height);
 
-	  function drawLine(color, offset, width) {
-	    var circles = [],
+	  window.onresize = function (event) {
+	    width = html.clientWidth;
+	    height = html.clientHeight;
+	    paper.setSize(width, height);
+	    world.forEach(function (part) {
+	      part.worldSize(width, height);
+	    });
+	  };
+
+	  function drawLine(color) {
+	    var parts = [],
 	        i = 0;
 	    for (; i < amount; i++) {
-	      var circle = new Circle({ paper: paper, color: color, offset: offset, width: width, height: height });
-	      circles.push(circle);
+	      var part = new Circle({ paper: paper, color: color, width: width, height: height });
+	      parts.push(part);
 	    }
-	    return circles;
+	    return parts;
 	  }
 
-	  var circles = drawLine(Circle.C1, 0, width).concat(drawLine(Circle.C2, 1 * width, width)).concat(drawLine(Circle.C3, 2 * width, width));
+	  var world = drawLine(Circle.C1).concat(drawLine(Circle.C2)).concat(drawLine(Circle.C3));
 
-	  for (var i = 0, l = circles.length; i < l; i++) {
-	    var idx = Math.floor(l * Math.random());
-	    circles[idx].pop();
-	  }
+	  world.forEach(function () {
+	    var idx = Math.floor(world.length * Math.random());
+	    world[idx].pop();
+	  });
 
 	  var frame = 0;
 
 	  function animate() {
-	    circles.forEach(function (circle) {
-	      circle.animate({ frame: frame });
+	    world.forEach(function (part) {
+	      part.animate({ frame: frame });
 	    });
 	    frame++;
 	    setTimeout(animate, 30);
@@ -160,41 +163,67 @@
 
 	    _classCallCheck(this, Circle);
 
-	    var paper = this.paper = args.paper,
+	    var paper = args.paper,
 	        width = args.width,
-	        height = this.height = args.height,
-	        circle = this.circle = paper.circle(args.offset + width * Math.random(), args.height * Math.random(), height / 50 + 10 * Math.random());
-	    this.colorize(args.color);
+	        height = args.height,
+	        color = args.color,
+	        circle = this.circle = paper.circle();
+	    this.colorize(color);
+	    this.worldSize(width, height);
 	    circle.node.style.cursor = 'pointer';
 
 	    circle.mouseover(function () {
-	      if (circle.x1 !== undefined) {
+	      if (_this.x1 !== undefined) {
 	        return;
 	      }
-
-	      _this.colorize(randomColor(circle.color));
+	      _this.colorize(randomColor(_this.color));
 	      _this.pop();
 	      _this.renew();
-
-	      var color = circle.color,
-	          lane = color == C1 ? 0 : color == C2 ? 1 : 2;
-	      _this.moveTo(width * (lane + Math.random()));
+	      _this.transitTo(_this.width * (_this.lane + rand()));
 	    });
 
 	    this.renew();
 	  }
 
 	  _createClass(Circle, [{
+	    key: "worldSize",
+	    value: function worldSize(width, height) {
+	      var oldWidth = this.width,
+	          oldHeight = this.height;
+	      this.width = width / 3;
+	      this.height = height;
+	      this.circle.attr({
+	        r: this.height / 50 + rand(10)
+	      });
+	      if (oldWidth !== undefined) {
+	        this.moveTo(this.x0 * this.width / oldWidth, this.y0 * this.height / oldHeight);
+	      } else {
+	        this.moveTo(this.offset + rand(this.width), this.height * rand());
+	      }
+	    }
+	  }, {
+	    key: "transitTo",
+	    value: function transitTo(x, y) {
+	      this.x1 = x;
+	      this.y1 = y;
+	    }
+	  }, {
 	    key: "moveTo",
-	    value: function moveTo(x) {
-	      this.circle.x1 = x;
+	    value: function moveTo(x, y) {
+	      this.x0 = x;
+	      this.y0 = y;
+	      this.circle.attr({
+	        cx: x,
+	        cy: y
+	      });
 	    }
 	  }, {
 	    key: "colorize",
 	    value: function colorize(color) {
 	      this.circle.attr("fill", color);
 	      this.circle.attr("stroke", randomColor(color));
-	      this.circle.color = color;
+	      this.color = color;
+	      return this;
 	    }
 	  }, {
 	    key: "pop",
@@ -206,43 +235,62 @@
 	    key: "renew",
 	    value: function renew() {
 	      var circle = this.circle;
-	      circle.x0 = circle.attr('cx');
-	      circle.y0 = circle.attr('cy');
-	      circle.radius = this.height / 40 + 30 * Math.random();
-	      circle.cycle = 20 + 20 * Math.random();
-	      circle.dispersion = 3 * Math.random();
-	      circle.direction = Math.random() > 0.5 ? 1 : -1;
+	      this.radius = this.height / 40 + 30 * Math.random();
+	      this.cycle = 20 + 20 * Math.random();
+	      this.dispersion = 3 * Math.random();
+	      this.direction = Math.random() > 0.5 ? 1 : -1;
 	    }
 	  }, {
 	    key: "animate",
 	    value: function animate(args) {
 	      var frame = args.frame,
 	          circle = this.circle,
-	          x = circle.attr('cx'),
-	          y = circle.attr('cy');
+	          x = this.x0,
+	          y = this.y0,
+	          phase = void 0;
 
-	      if (circle.x1) {
-	        if (!circle.frameStart) {
-	          circle.frameStart = frame;
+	      if (this.x1 || this.y1) {
+	        if (!this.frameStart) {
+	          this.frameStart = frame;
 	          circle.attr({ opacity: rand(0.8) });
 	        }
-	        var phase = (frame - circle.frameStart) / circle.cycle;
-	        x = circle.x0 + (circle.x1 - circle.x0) * phase;
+	        phase = (frame - this.frameStart) / this.cycle;
+	        if (this.x1 !== undefined) {
+	          x = this.x0 + (this.x1 - this.x0) * phase;
+	        }
+	        if (this.y1 !== undefined) {
+	          y = this.y0 + (this.y1 - this.y0) * phase;
+	        }
 	        if (phase > 1) {
-	          x = circle.x0 = circle.x1;
-	          delete circle.x1;
-	          delete circle.frameStart;
+	          if (this.x1 !== undefined) {
+	            x = this.x0 = this.x1;
+	          }
+	          if (this.y1 !== undefined) {
+	            y = this.y0 = this.y1;
+	          }
+	          delete this.x1;
+	          delete this.y1;
+	          delete this.frameStart;
 	          circle.attr({ opacity: 1 });
 	        }
-	      } else {
-	        x = circle.x0;
 	      }
 
-	      x = x + circle.radius * Math.cos(2 * Math.PI * frame / circle.cycle * circle.direction);
-	      y = circle.y0 + circle.radius * Math.sin(2 * Math.PI * frame / circle.cycle * circle.direction);
+	      phase = 2 * Math.PI * frame / this.cycle * this.direction;
+	      x = x + this.radius * Math.cos(phase);
+	      y = this.y0 + this.radius * Math.sin(phase);
 
-	      circle.attr('cx', x + circle.dispersion * Math.sin(-Math.PI + 2 * Math.PI * Math.random()));
-	      circle.attr('cy', y + circle.dispersion * Math.sin(-Math.PI + 2 * Math.PI * Math.random()));
+	      circle.attr('cx', x + this.dispersion * rand());
+	      circle.attr('cy', y + this.dispersion * rand());
+	    }
+	  }, {
+	    key: "lane",
+	    get: function get() {
+	      return this.color == C1 ? 0 : this.color == C2 ? 1 : 2;
+	    }
+	  }, {
+	    key: "offset",
+	    get: function get() {
+	      return this.lane * this.width;
 	    }
 	  }]);
 
