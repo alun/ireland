@@ -50,9 +50,9 @@ function render() {
     return parts
   }
 
-  var world = drawLine(Circle.C1).concat(
-    drawLine(Circle.C2)).concat(
-    drawLine(Circle.C3))
+  var world = [Circle.C1, Circle.C2, Circle.C3].
+    map((color) => drawLine(color)).
+    reduce((parts1, parts2) => parts1.concat(parts2))
 
   world.forEach(() => {
     let idx = Math.floor(world.length * Math.random())

@@ -25,8 +25,9 @@ class Circle {
         circle = this.circle = paper.circle()
     this.colorize(color)
     this.worldSize(width, height)
-    circle.node.style.cursor = 'pointer'
+    this.renew()
 
+    circle.node.style.cursor = 'pointer'
     circle.mouseover(() => {
       if (this.x1 !== undefined) {
         return
@@ -35,22 +36,24 @@ class Circle {
       this.pop()
       this.renew()
       this.transitTo(
-        this.width * (this.lane + rand())
+        this.laneWidth * (this.lane + rand()),
+        this.height * rand()
       )
     })
-
-    this.renew()
   }
   get lane() {
     return this.color == C1 ? 0 : this.color == C2 ? 1 : 2
   }
   get offset() {
-    return this.lane * this.width
+    return this.lane * this.laneWidth
+  }
+  get laneWidth() {
+    return this.width / 3
   }
   worldSize(width, height) {
     let oldWidth = this.width,
-        oldHeight  = this.height
-    this.width = width / 3
+        oldHeight = this.height
+    this.width = width
     this.height = height
     this.circle.attr({
       r: this.height / 50 + rand(10)
@@ -63,7 +66,7 @@ class Circle {
     }
     else {
       this.moveTo(
-        this.offset + rand(this.width),
+        this.offset + rand(this.laneWidth),
         this.height * rand()
       )
     }
@@ -132,10 +135,11 @@ class Circle {
 
     phase = 2 * Math.PI * frame / this.cycle * this.direction
     x = x + this.radius * Math.cos(phase)
-    y = this.y0 + this.radius * Math.sin(phase)
-
-    circle.attr('cx', x + this.dispersion * rand())
-    circle.attr('cy', y + this.dispersion * rand())
+    y = y + this.radius * Math.sin(phase)
+    circle.attr({
+      cx: x + this.dispersion * rand(),
+      cy: y + this.dispersion * rand()
+    })
   }
 }
 
