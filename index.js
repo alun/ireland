@@ -20,7 +20,14 @@ ready = new Promise(function (resolve, reject) {
 ready.then(() => {
   document.body.appendChild(elem)
   document.body.style.margin = 0
+
   render()
+
+  let ribbon = document.createElement('div')
+  ribbon.innerHTML = require('./ribbon.html')
+  ribbon.style.right = 0
+  ribbon.style.top = 0
+  document.body.appendChild(ribbon)
 })
 
 function render() {

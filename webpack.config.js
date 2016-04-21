@@ -20,6 +20,7 @@ module.exports = {
   module: {
     loaders: [
       {test: /\.coffee$/, loader: 'coffee'},
+      {test: /\.html$/, loader: 'raw'},
       {test: /\.css$/, loader: 'style!css'},
       {
         test: /\.jsx?$/,
