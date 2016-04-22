@@ -1,14 +1,7 @@
-const
-  HtmlWebpackPlugin = require('html-webpack-plugin'),
-  CopyWebpackPlugin = require('copy-webpack-plugin')
-
-const
-  root = (path) => {
-    return `${__dirname}` + (path ? `/${path}` : '')
-  }
+const HtmlWebpackPlugin = require('html-webpack-plugin')
 
 module.exports = {
-  context: root(),
+  context: `${__dirname}`,
   entry: {
     index: './index.js'
   },
@@ -19,13 +12,18 @@ module.exports = {
   target: 'web',
   module: {
     loaders: [
-      {test: /\.coffee$/, loader: 'coffee'},
-      {test: /\.html$/, loader: 'raw'},
-      {test: /\.css$/, loader: 'style!css'},
+      {
+        test: /\.html$/,
+        loader: 'raw'
+      },
+      {
+        test: /\.css$/,
+        loader: 'style!css'
+      },
       {
         test: /\.jsx?$/,
         exclude: /(node_modules|bower_components)/,
-        loader: 'babel', // 'babel-loader' is also a legal name to reference
+        loader: 'babel',
         query: {
           presets: ['es2015']
         }
@@ -33,7 +31,7 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ["", ".coffee", ".js"]
+    extensions: ["", ".js"]
   },
   plugins: [
     new HtmlWebpackPlugin({

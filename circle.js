@@ -149,4 +149,4 @@ class Circle {
   _.C3 = C3
 })(Circle)
 
-module.exports = Circle
+export default Circle

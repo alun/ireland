@@ -1,6 +1,7 @@
-let Raphael = require('raphael'),
-    Circle = require('./circle'),
-    elem = document.createElement('div'),
+import Circle from './circle'
+import Raphael from 'raphael'
+
+let elem = document.createElement('div'),
     ready
 
 ready = new Promise(function (resolve, reject) {
